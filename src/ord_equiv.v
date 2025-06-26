@@ -43,7 +43,7 @@ A terceira definição de ordenação, chamada [ord3], diz que uma lista está o
 
  *)
 
-Definition ord3 (l : list nat) : Prop := forall i, i < length l -> nth i l 0 <= nth (S i) l 0.
+Definition ord3 (l : list nat) : Prop := forall i, length l > 1 -> i < length l -> nth i l 0 <= nth (S i) l 0.
 
 (**
 
