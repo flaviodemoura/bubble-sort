@@ -65,8 +65,54 @@ Eval compute in (bs (3 :: 2 :: 1::nil)).
 (** Sabemos que aplicar a função [bubble] a uma lista qualquer, não necessariamente vai retornar uma lista ordenada, mas o lema [bubble_ord1] a seguir nos mostra que se o primeiro elemento é o único elemento fora de ordem em uma lista, ao aplicarmos a função [bubble], obtemos uma lista ordenada:
 *)
 
+Lemma bubble_ord_ord: forall l, ord1 l -> bubble l = l.
+Proof.
+  Admitted.
+
+Lemma bubble_le_all: forall a a0 l, a <= a0 -> a <=* l -> a <=* bubble (a0 :: l).
+Proof.
+  Admitted.
+
+Lemma le_all_ord: forall l a, ord1 (a::l) -> a <=* l.
+Proof.  
+Admitted.
+
 Lemma bubble_ord1: forall l a, ord1 l -> ord1(bubble (a::l)).  
 Proof.
+  induction l.
+  - intros a H. rewrite bubble_equation. apply ord1_one.
+  - intros a0 H. rewrite bubble_equation. destruct (a0 <=? a) eqn:Hle.
+    + rewrite bubble_ord_ord.
+      * apply ord1_all.
+        ** apply leb_complete in Hle. assumption.
+        ** assumption.
+      * assumption.
+    + apply ord1_equiv_ord2. apply ord2_all.
+      * apply bubble_le_all.
+        ** apply leb_complete_conv in Hle. lia.
+        ** apply le_all_ord. assumption.
+      * apply ord1_equiv_ord2. apply IHl. inversion H; subst.
+        ** apply ord1_nil.
+        ** assumption.                                            Qed.                      
+                                                                
+Lemma bubble_ord1': forall l a, ord1 l -> ord1(bubble (a::l)).  
+Proof.
+  intros l a H. induction H.
+  - rewrite bubble_equation. apply ord1_one.
+  - rewrite bubble_equation. destruct (a <=? x) eqn: H.
+    + rewrite bubble_equation. apply ord1_all.
+      * apply leb_complete. assumption.
+      * apply ord1_one.
+    + rewrite bubble_equation. apply ord1_all.
+      * apply leb_complete_conv in H. lia.
+      * apply ord1_one.
+  - rewrite bubble_equation.
+  Admitted.
+
+Lemma bubble_ord1'': forall l a, ord1 l -> ord1(bubble (a::l)).  
+Proof.
+  intros l a.
+  functional induction (bubble (a::l)).
   Admitted.
   
 Lemma bs_ordena: forall l, ord1 (bs l).
