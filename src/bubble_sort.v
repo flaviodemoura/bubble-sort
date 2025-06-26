@@ -54,7 +54,7 @@ Eval compute in bubble (3::2::1::nil).
 Fixpoint bs (l: list nat) :=
   match l with
   | nil => nil
-  | h::l => bubble (h::(bs l))
+  | h::l' => bubble (h::(bs l'))
   end.           
 (* begin hide *)
 Eval compute in (bs (1::2::nil)).
@@ -94,7 +94,28 @@ Qed.
 
 Lemma bubble_cons: forall l x, Permutation (bubble (x::l)) (x::(bubble l)) .
 Proof.
-Admitted.  
+  intro l. functional induction (bubble l).
+  - intro x. auto.
+  - intro x0. rewrite bubble_equation. destruct (x0 <=? x).
+    + auto.
+    + rewrite bubble_equation. constructor.
+  - intros x0. rewrite bubble_equation. destruct (x0 <=? x).
+    + constructor. apply IHl0.
+    + apply perm_trans with (x :: x0 :: bubble (y :: l0)).
+      * constructor. apply IHl0.
+      * constructor.
+  - intro x0. apply perm_trans with (bubble (x0 :: y :: x :: l0)).
+    + apply perm_trans with (x0 :: x :: y :: l0).
+      * apply Permutation_sym. apply bubble_perm.
+      * apply perm_trans with  (x0 :: y :: x :: l0).
+        ** repeat constructor.
+        ** apply bubble_perm.
+    + rewrite bubble_equation. destruct (x0 <=? y).
+      * constructor. apply IHl0.
+      * apply perm_trans with (y :: x0 :: bubble (x :: l0)).
+        ** constructor. apply IHl0.
+        ** constructor.
+Qed.
 
 Lemma bubble_perm2: forall l l', Permutation l l' -> Permutation (bubble l) (bubble l').
 Proof.
@@ -105,9 +126,16 @@ Proof.
     + apply perm_trans with (x::bubble l').
       * apply perm_skip. apply IHPermutation.
       * apply Permutation_sym. apply bubble_cons.
-  - Admitted.
+  - apply perm_trans with (y::x::l).
+    + apply Permutation_sym. apply bubble_perm.
+    + apply perm_trans with (x::y::l).
+      * constructor.
+      * apply bubble_perm.
+  - apply perm_trans with (bubble l').
+    + apply IHPermutation1.
+    + apply IHPermutation2.
+Qed.  
 
-  
 Lemma bs_permuta: forall l, Permutation l (bs l).
 Proof.
   induction l.
@@ -116,10 +144,6 @@ Proof.
     + apply bubble_perm.
     + apply bubble_perm2. apply perm_skip. apply IHl.
 Qed.
-
-    
-
-
     
 Theorem bs_correto: forall l, ord1 (bs l) /\ Permutation l (bs l).
 Proof.
