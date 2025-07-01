@@ -1,5 +1,5 @@
 (* begin hide *)
-Require Import Arith List Lia Permutation.
+Require Import Arith List Lia.
 Require Import Recdef.
 Require Import ord_equiv.
 Require Import perm_equiv.
@@ -67,11 +67,42 @@ Eval compute in (bs (3 :: 2 :: 1::nil)).
 
 Lemma bubble_ord_ord: forall l, ord1 l -> bubble l = l.
 Proof.
-  Admitted.
+  intros l H. induction H.
+  - rewrite bubble_equation. reflexivity.
+  - rewrite bubble_equation. reflexivity.
+  - rewrite bubble_equation. apply leb_correct in H. rewrite H. rewrite IHord1. reflexivity.
+Qed.
 
-Lemma bubble_le_all: forall a a0 l, a <= a0 -> a <=* l -> a <=* bubble (a0 :: l).
+(** O lema a seguir consiste em uma propriedade do predicado [le_all], e portanto poderia ter sido colocado no arquivo [ord_equiv]. No entanto, por simplicidade, o deixaremos aqui:
+
+*)
+
+Lemma le_all_cons: forall l x y, x <= y -> x <=* l -> x <=* (y::l).
 Proof.
-  Admitted.
+  intros l x y Hle Hall. unfold le_all in *.
+  intros y' Hin. simpl in Hin. destruct Hin.
+  - subst. assumption.
+  - apply Hall. assumption.
+Qed.
+
+Lemma bubble_le_all: forall l a a0, a <= a0 -> a <=* l -> a <=* bubble (a0 :: l).
+Proof.
+  induction l.
+  - intros a a0 Hle Hall. rewrite bubble_equation. unfold le_all. intros y Hin. apply in_inv in Hin. destruct Hin.
+    + subst. assumption.
+    + inversion H.
+  - intros a1 a0 Hle Hall. rewrite bubble_equation. destruct (a0 <=? a).
+    + apply le_all_cons.
+      * assumption.
+      * apply IHl.
+        ** unfold le_all in Hall. apply Hall. apply in_eq.
+        ** unfold le_all in *. intros y H. apply Hall. simpl. right. assumption.
+    + apply le_all_cons.
+      * unfold le_all in Hall. apply Hall. apply in_eq.
+      * apply IHl.
+        ** assumption.
+        ** unfold le_all in *. intros y H. apply Hall. simpl. right. assumption.
+Qed.
 
 Lemma le_all_ord: forall l a, ord1 (a::l) -> a <=* l.
 Proof.  
@@ -93,8 +124,15 @@ Proof.
         ** apply le_all_ord. assumption.
       * apply ord1_equiv_ord2. apply IHl. inversion H; subst.
         ** apply ord1_nil.
-        ** assumption.                                            Qed.                      
-                                                                
+        ** assumption.
+Qed.                      
+
+(**
+
+Os dois lemas a seguir, apresentam provas (parciais) alternativas à prova do lema anterior, e portanto constituem atividades que completaremos apenas se houver tempo.
+
+*)
+
 Lemma bubble_ord1': forall l a, ord1 l -> ord1(bubble (a::l)).  
 Proof.
   intros l a H. induction H.

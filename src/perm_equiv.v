@@ -1,7 +1,7 @@
 
 (* begin hide *)
 Require Import Arith List.
-Require Import Permutation.
+Require Export Permutation.
 (* end hide *)
 
 (**
