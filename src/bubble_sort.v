@@ -5,7 +5,9 @@ Require Import ord_equiv.
 Require Import perm_equiv.
 (* end hide*)
 
-(** A função [bubble] a seguir recebe uma lista de naturais como argumento, e percorre esta lista comparando elementos consecutivos: *)
+(** * O algoritmo BubbleSort *)
+
+(** Iniciaremos definindo a função [bubble] que recebe uma lista de naturais como argumento, e percorre esta lista comparando elementos consecutivos. Chamamos este processo de borbulhamento: *)
 
 Function bubble (l: list nat ) {measure length l} :=
   match l with
@@ -66,11 +68,11 @@ Eval compute in (bs (3 :: 2 :: 1::nil)).
 *)
 
 Lemma bubble_ord_ord: forall l, ord1 l -> bubble l = l.
-Proof.
-  intros l H. induction H.
-  - rewrite bubble_equation. reflexivity.
-  - rewrite bubble_equation. reflexivity.
-  - rewrite bubble_equation. apply leb_correct in H. rewrite H. rewrite IHord1. reflexivity.
+Proof. (** %\noindent {\bf Prova}.% *)
+  intros l H. induction H. (** A prova é feita por indução na definição [ord1]. %\newline% *)
+  - rewrite bubble_equation. reflexivity. (** 1. A primeira regra se refere ao axioma que diz que a lista vazia está ordenada. A igualdade neste caso é trivial porque a função [bubble] retorna a própria lista vazia. %\newline% *)
+  - rewrite bubble_equation. reflexivity. (** 2. A segunda regra trata de listas unitárias e também é trivial. *)
+  - rewrite bubble_equation. apply leb_correct in H. rewrite H. rewrite IHord1. reflexivity. (** 3. A terceira regra corresponde ao passo importante da prova. ... $\hfill\Box$ *)
 Qed.
 
 (** O lema a seguir consiste em uma propriedade do predicado [le_all], e portanto poderia ter sido colocado no arquivo [ord_equiv]. No entanto, por simplicidade, o deixaremos aqui:
@@ -84,8 +86,19 @@ Proof.
   - subst. assumption.
   - apply Hall. assumption.
 Qed.
+(** %\begin{itemize}
+    \item primeiro item
+    \item segundo item
+\end{itemize}%
+*)
+
 
 Lemma bubble_le_all: forall l a a0, a <= a0 -> a <=* l -> a <=* bubble (a0 :: l).
+(** %\begin{enumerate}
+    \item primeiro item
+    \item segundo item
+\end{enumerate}%
+*)
 Proof.
   induction l.
   - intros a a0 Hle Hall. rewrite bubble_equation. unfold le_all. intros y Hin. apply in_inv in Hin. destruct Hin.
@@ -104,9 +117,25 @@ Proof.
         ** unfold le_all in *. intros y H. apply Hall. simpl. right. assumption.
 Qed.
 
+Lemma ord1_snd: forall l x y, ord1(x::y::l) -> ord1(x::l).
+Proof.
+  intros l. case l.
+  - intros x y H. apply ord1_one.
+  - intros z l' x y H. apply ord1_all.
+    + inversion H; subst. inversion H4; subst. lia.
+    + inversion H; subst. inversion H4; subst. assumption.
+Qed.
+
 Lemma le_all_ord: forall l a, ord1 (a::l) -> a <=* l.
-Proof.  
-Admitted.
+Proof.
+  induction l.
+  - intros a Hin. unfold le_all. intros y H. inversion H.
+  - intros x' Hord. unfold le_all in *. intros y Hin. inversion Hin; subst.
+    + inversion Hord; subst. assumption.
+    + apply IHl.
+      * apply ord1_snd in Hord. assumption.
+      * assumption.
+Qed.
 
 Lemma bubble_ord1: forall l a, ord1 l -> ord1(bubble (a::l)).  
 Proof.
@@ -131,7 +160,6 @@ Qed.
 
 Os dois lemas a seguir, apresentam provas (parciais) alternativas à prova do lema anterior, e portanto constituem atividades que completaremos apenas se houver tempo.
 
-*)
 
 Lemma bubble_ord1': forall l a, ord1 l -> ord1(bubble (a::l)).  
 Proof.
@@ -158,7 +186,7 @@ Proof.
   induction l.
   - simpl. apply ord1_nil.
   - simpl. apply bubble_ord1. apply IHl.
-Qed.
+Qed. *)
 
 (** A seguir, mostraremos que o algoritmo bubblesort gera como saída uma permutação da lista de entrada:
 
